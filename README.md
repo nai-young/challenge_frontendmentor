@@ -7,7 +7,6 @@
 ![MUI](https://img.shields.io/badge/MUI-%230081CB.svg?style=for-the-badge&logo=mui&logoColor=white)
 ![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
 
-<br />
 
 # Frontend Mentor Challenges
 
@@ -18,7 +17,6 @@ Developing all the projects using React and different design libraries such as S
 <br />
 
 ## Live site URLs
----
 
 - QR code component: https://qr-code-component-fe.vercel.app/
 - Job listings with filtering: 
