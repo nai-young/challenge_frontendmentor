@@ -19,4 +19,4 @@ Developing all the projects using React and different design libraries such as S
 ## Live site URLs
 
 - QR code component: https://qr-code-component-fe.vercel.app/
-- Job listings with filtering: 
+- Job listings with filtering: https://static-job-listings-master-fe.vercel.app/
