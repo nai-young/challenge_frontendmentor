@@ -24,25 +24,44 @@ const theme = createTheme({
 	},
 });
 
+const defaultFilters = {
+	role: '',
+	level: '',
+	languages: [],
+};
+
 function App() {
-	const [showFilters, setShowFilters] = useState([]);
+	const [showFilters, setShowFilters] = useState(defaultFilters);
 
 	const ChipStyled = ({
-		label,
-		i,
+		role,
+		level,
+		language,
+		id,
 		disableClick = false,
 		deletable = false,
 	}) => (
 		<Chip
-			id={i}
-			label={label}
+			id={id}
+			label={role || level || language}
 			{...(!disableClick && {
 				onClick: () =>
-					setShowFilters((prev) =>
-						!prev.includes(label) ? [...prev, label] : prev
-					),
+					setShowFilters((prev) => {
+						return {
+							...prev,
+							...((!!role && { role }) ||
+								(!!level && { level }) ||
+								(!!language && {
+									languages: !prev.languages.includes(language)
+										? [...prev.languages, language]
+										: [...prev.languages],
+								})),
+						};
+					}),
 			})}
-			{...(deletable && { onDelete: () => removeFilter(label) })}
+			{...(deletable && {
+				onDelete: () => removeFilter(role || level || language),
+			})}
 			sx={{
 				borderRadius: 1,
 				backgroundColor: 'hsl(180, 31%, 95%)',
@@ -57,19 +76,49 @@ function App() {
 		/>
 	);
 
-	const removeFilter = (label) => {
-		const newFilters = showFilters.map((filter) => filter !== label && filter);
-		setShowFilters(newFilters);
+	const removeFilter = (filter) => {
+		const key = Object.entries(showFilters).find(([k, v]) =>
+			Array.isArray(v) ? v.includes(filter) : v === filter
+		)[0];
+
+		setShowFilters((prev) => ({
+			...prev,
+			[key]: Array.isArray(prev[key])
+				? prev.languages.filter((l) => l !== filter)
+				: '',
+		}));
 	};
 
-	const clearFilters = () => setShowFilters([]);
+	const clearFilters = () => setShowFilters(defaultFilters);
 
-	const validateFilters = (job) =>
-		!showFilters.length ||
-		showFilters.includes(job.role) ||
-		showFilters.includes(job.level) ||
-		showFilters.includes(job.languages.map((lang) => lang));
-    
+	const validateFilters = (job) => {
+		const noFilters = Object.values(showFilters).every((value) =>
+			Array.isArray(value) ? !value.length : value === ''
+		);
+
+		const containsAllValues = (obj1, obj2) => {
+			for (let key in obj1) {
+				if (obj1[key].length > 0) {
+					if (Array.isArray(obj1[key])) {
+						for (let i = 0; i < obj1[key].length; i++) {
+							const value = obj1[key][i];
+							if (obj2[key].includes(value)) {
+								return true;
+							}
+						}
+						return false;
+					} else {
+						if (obj1[key] !== obj2[key]) {
+							return false;
+						}
+					}
+				}
+			}
+			return true;
+		};
+		return noFilters || containsAllValues(showFilters, job);
+	};
+
 	return (
 		<ThemeProvider theme={theme}>
 			<Container maxWidth='100%' disableGutters>
@@ -95,7 +144,7 @@ function App() {
 							margin: '0 auto',
 						}}
 					>
-						{showFilters.length > 0 && (
+						{Object.values(showFilters).some((value) => value.length > 0) && (
 							<Box
 								sx={{
 									bgcolor: '#FFF',
@@ -108,16 +157,26 @@ function App() {
 								}}
 							>
 								<Box sx={{ display: 'flex', gap: 1.5 }}>
-									{showFilters.map(
-										(filter, i) =>
-											!!filter && (
+									{Object.entries(showFilters).map(
+										([key, value], i) =>
+											!!value &&
+											(!Array.isArray(value) ? (
 												<ChipStyled
-													label={filter}
+													{...(value.length > 0 && { [key]: value })}
 													id={i}
 													disableClick
 													deletable
 												/>
-											)
+											) : (
+												value.map((v, i2) => (
+													<ChipStyled
+														language={v}
+														id={i2}
+														disableClick
+														deletable
+													/>
+												))
+											))
 									)}
 								</Box>
 								<Typography
@@ -228,10 +287,10 @@ function App() {
 												gap: 1.5,
 											}}
 										>
-											<ChipStyled label={job.role} />
-											<ChipStyled label={job.level} />
+											<ChipStyled role={job.role} />
+											<ChipStyled level={job.level} />
 											{job.languages.map((language, i) => (
-												<ChipStyled label={language} id={i} />
+												<ChipStyled language={language} id={i} />
 											))}
 										</Box>
 									</Box>
