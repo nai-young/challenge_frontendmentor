@@ -13,6 +13,8 @@
 Solve real-world HTML, CSS and JavaScript challenges whilst working to professional designs.
 
 Developing all the projects using React and different design libraries such as Styled Components, Material UI, etc...
+
+Access the project folder to see the details of the challenge.
 <br />
 <br />
 
